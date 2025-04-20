@@ -38,6 +38,28 @@ def validate_tasks(tasks):
                 valid = False
     return valid
 
+# calculate the total time
+def calc_run_time(task, tasks, memo):
+    if task in memo:
+        return memo[task]
+    t_duration = tasks[task]["duration"]
+    if not tasks[task]["deps"]:
+        memo[task] = t_duration
+    else:
+        max_dep = 0
+        for dep in tasks[task]["deps"]:
+            dep_time = calc_run_time(dep, tasks, memo)
+            if dep_time > max_dep:
+                max_dep = dep_time
+        memo[task] = t_duration + max_dep
+    return memo[task]
 
-if __name__ == "__main__":
-    main()
+def expected_runtime(tasks):
+    """Compute the expected (critical path) runtime."""
+    memo = {}
+    max_time = 0
+    for task in tasks:
+        t_time = calc_run_time(task, tasks, memo)
+        if t_time > max_time:
+            max_time = t_time
+    return max_time
