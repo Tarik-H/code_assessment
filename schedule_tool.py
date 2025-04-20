@@ -63,3 +63,62 @@ def expected_runtime(tasks):
         if t_time > max_time:
             max_time = t_time
     return max_time
+
+#
+############## Running tasks
+#
+
+def run_tasks(tasks):
+    completed = set()
+    lock = threading.Lock()
+    def run_task(name):
+        while True:
+            with lock:
+                ready = all(dep in completed for dep in tasks[name]["deps"])
+            if ready:
+                break
+            time.sleep(0.1)
+        print("Starting", name, "(", tasks[name]["duration"], "sec)")
+        time.sleep(tasks[name]["duration"])
+        print("Finished", name)
+        with lock:
+            completed.add(name)
+
+    threads = []
+    for task in tasks:
+        t = Thread(target=run_task, args=(task,))
+        threads.append(t)
+        t.start()
+    for t in threads:
+        t.join()
+
+def main():
+    parser = argparse.ArgumentParser(description="Task Scheduler tool")
+    parser.add_argument("file", help="task list file path")
+    parser.add_argument("--validate", action="store_true", help="Only validate the tasks and show expected runtime")
+    parser.add_argument("--run", action="store_true", help="Run the tasks in parallel")
+    args = parser.parse_args()
+
+    tasks = parse_file(args.file)
+    if not tasks:
+        print("No valid tasks found.")
+        return
+
+    if not validate_tasks(tasks):
+        print("Validation failed. Please fix errors in the task file.")
+        return
+
+    exp_time = expected_runtime(tasks)
+    print("Expected Total Runtime:", exp_time, "seconds")
+
+    if args.validate and not args.run:
+        return
+
+    if args.run:
+        start = time.time()
+        run_tasks(tasks)
+        actual = time.time() - start
+        print("Actual Runtime: {:.2f} seconds (Diff: {:.2f} seconds)".format(actual, actual - exp_time))
+
+if __name__ == "__main__":
+    main()        
