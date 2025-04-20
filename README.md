@@ -14,7 +14,7 @@ Python script that reads a list of IT operations tasks from a file, validates th
 2. **Validate and run**
    ```powershell
    python schedule_tool.py list_tasks.txt --validate
-
+   ```powershell
    python schedule_tool.py list_tasks.txt --run
 
 
