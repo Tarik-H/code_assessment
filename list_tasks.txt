@@ -1,0 +1,11 @@
+# example list of tasks
+ServerLogin,2,
+VerifyNetwork,1,ServerLogin
+CheckSystemLogs,3,ServerLogin
+MonitorDiskUsage,2,ServerLogin
+BackupDatabase,5,ServerLogin;VerifyNetwork
+BackupFiles,6,ServerLogin;VerifyNetwork
+ClearTempFiles,2,MonitorDiskUsage
+ApplySecurityPatches,4,CheckSystemLogs
+RestartServices,2,ApplySecurityPatches
+
